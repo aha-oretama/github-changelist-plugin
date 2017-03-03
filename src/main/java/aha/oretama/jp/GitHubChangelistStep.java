@@ -25,6 +25,8 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author aha-oretama
@@ -70,10 +72,12 @@ public class GitHubChangelistStep extends AbstractStepImpl {
 
         @Override
         protected List<String> run() throws Exception {
-            return getChangelist(build, listener, step.regex, step.testTargetRegex);
+            List<String> changelist =
+                getChangelist(build, listener);
+            return createRegexps(changelist, step.regex, step.testTargetRegex);
         }
 
-        private List<String> getChangelist(Run<?, ?> build, TaskListener listener, String regex, String testTargetRegex)
+        private List<String> getChangelist(Run<?, ?> build, TaskListener listener)
             throws IOException, IllegalAccessException, NoSuchFieldException {
 
             Job job = build.getParent();
@@ -92,6 +96,23 @@ public class GitHubChangelistStep extends AbstractStepImpl {
             }
 
             return new ArrayList<>();
+        }
+        
+        private List<String> createRegexps(List<String> changelist, String regex, String testTargetRegex) {
+            Pattern pattern = Pattern.compile(regex);
+
+            List<String> regexs = new ArrayList<>();
+            for (String change : changelist) {
+                Matcher matcher = pattern.matcher(change);
+
+                if (matcher.find() && matcher.groupCount() >= 1) {
+                    for (int i = 1; i <= matcher.groupCount(); i++) {
+                        regexs.add(testTargetRegex.replace("$" + i, matcher.group(i)));
+                    }
+                }
+            }
+
+            return regexs;
         }
 
         private List<String> getPullRequestChanges(BranchJobProperty branchJobProperty)
