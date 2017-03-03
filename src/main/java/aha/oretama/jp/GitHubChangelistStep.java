@@ -7,11 +7,14 @@ import hudson.model.Job;
 import hudson.model.JobProperty;
 import hudson.model.Run;
 import hudson.model.TaskListener;
+import hudson.plugins.git.GitChangeSet;
+import hudson.scm.ChangeLogSet;
 import jenkins.branch.Branch;
 import jenkins.branch.BranchSource;
 
 import org.jenkinsci.plugins.github_branch_source.GitHubSCMSource;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
+import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.jenkinsci.plugins.workflow.multibranch.BranchJobProperty;
 import org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject;
 import org.jenkinsci.plugins.workflow.steps.AbstractStepDescriptorImpl;
@@ -27,6 +30,8 @@ import java.util.List;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author aha-oretama
@@ -91,11 +96,12 @@ public class GitHubChangelistStep extends AbstractStepImpl {
             String branchName = branchJobProperty.getBranch().getHead().getName();
             List<String> changelist = new ArrayList<>();
             if(branchName.startsWith("PR-")) {
-                changelist.addAll(getPullRequestChanges(branchJobProperty));
+                changelist.addAll(getPullRequestChangelist(branchJobProperty));
             }else{
+                changelist.addAll(getChangelistFromLastBuild(build));
             }
 
-            return new ArrayList<>();
+            return changelist;
         }
         
         private List<String> createRegexps(List<String> changelist, String regex, String testTargetRegex) {
@@ -115,7 +121,7 @@ public class GitHubChangelistStep extends AbstractStepImpl {
             return regexs;
         }
 
-        private List<String> getPullRequestChanges(BranchJobProperty branchJobProperty)
+        private List<String> getPullRequestChangelist(BranchJobProperty branchJobProperty)
             throws IOException, IllegalAccessException, NoSuchFieldException {
 
             Field field = JobProperty.class.getDeclaredField("owner");
@@ -145,6 +151,29 @@ public class GitHubChangelistStep extends AbstractStepImpl {
                 gitHubRepositoryWrapper.getGitHubPullRequest(branch.getHead().getName());
 
             return gitHubPullRequest.getChangelist();
+        }
+
+        private List<String> getChangelistFromLastBuild(Run build) throws AbortException {
+
+            if(!(build instanceof WorkflowRun)){
+                throw new AbortException("To use changelist, job must be on multi branch pipeline.");
+            }
+
+            List<GitChangeSet> gitChangeSets = new ArrayList<>();
+
+            for (ChangeLogSet changeLogSet :((WorkflowRun) build).getChangeSets()) {
+                if(changeLogSet.getKind().equals("git")){
+                    gitChangeSets.addAll(
+                        Stream.of(changeLogSet.getItems()).map(item -> (GitChangeSet)item).collect(Collectors.toList()));
+                }
+            }
+
+            List<String> changelist = new ArrayList<>();
+            for (GitChangeSet gitChangeSet: gitChangeSets) {
+                changelist.addAll(gitChangeSet.getAffectedPaths());
+            }
+
+            return changelist;
         }
     }
 
