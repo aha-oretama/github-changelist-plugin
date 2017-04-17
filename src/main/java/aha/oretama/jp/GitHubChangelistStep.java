@@ -107,18 +107,18 @@ public class GitHubChangelistStep extends AbstractStepImpl {
         private List<String> createRegexps(List<String> changelist, String regex, String testTargetRegex) {
             Pattern pattern = Pattern.compile(regex);
 
-            List<String> regexs = new ArrayList<>();
+            List<String> regexps = new ArrayList<>();
             for (String change : changelist) {
                 Matcher matcher = pattern.matcher(change);
 
                 if (matcher.find() && matcher.groupCount() >= 1) {
                     for (int i = 1; i <= matcher.groupCount(); i++) {
-                        regexs.add(testTargetRegex.replace("$" + i, matcher.group(i)));
+                        regexps.add(testTargetRegex.replace("$" + i, matcher.group(i)));
                     }
                 }
             }
 
-            return regexs;
+            return regexps;
         }
 
         private List<String> getPullRequestChangelist(BranchJobProperty branchJobProperty)
