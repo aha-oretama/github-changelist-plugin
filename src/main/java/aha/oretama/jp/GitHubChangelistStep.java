@@ -21,6 +21,7 @@ import org.jenkinsci.plugins.workflow.steps.AbstractStepDescriptorImpl;
 import org.jenkinsci.plugins.workflow.steps.AbstractStepImpl;
 import org.jenkinsci.plugins.workflow.steps.AbstractSynchronousStepExecution;
 import org.jenkinsci.plugins.workflow.steps.StepContextParameter;
+import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 
 import java.io.IOException;
@@ -44,12 +45,13 @@ public class GitHubChangelistStep extends AbstractStepImpl {
 
     /**
      * This regular expression is used to transform the matched group into output list.
-     * Default is to get the file name added 'Test'.
+     * Default is to get the file name formated as "**&#47;XXTest*".
      */
-    private String testTargetRegex = "$1Test";
+    private String testTargetRegex = "**/$1Test*";
 
     private static final Logger LOGGER = Logger.getLogger(GitHubChangelistStep.class.getName());
 
+    @DataBoundConstructor
     public GitHubChangelistStep() {}
 
     @DataBoundSetter

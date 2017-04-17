@@ -15,7 +15,7 @@ public class RegexUtilsTest {
     // Default
     private String regex = "([^/]*?)(Test)?\\..*$";
     // Default
-    private String testTargetRegex = "$1Test";
+    private String testTargetRegex = "**/$1Test*";
 
 
     static {
@@ -29,9 +29,9 @@ public class RegexUtilsTest {
 
         List resultList = RegexUtils.createRegexps(changelist, regex, testTargetRegex);
 
-        assertEquals("utilTest",resultList.get(0));
-        assertEquals("groovyUtilTest",resultList.get(1));
-        assertEquals("testUtilTest",resultList.get(2));
+        assertEquals("**/utilTest*",resultList.get(0));
+        assertEquals("**/groovyUtilTest*",resultList.get(1));
+        assertEquals("**/testUtilTest*",resultList.get(2));
     }
 
 }
