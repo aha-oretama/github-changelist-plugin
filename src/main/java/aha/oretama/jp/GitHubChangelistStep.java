@@ -28,8 +28,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -38,8 +36,18 @@ import java.util.stream.Stream;
  */
 public class GitHubChangelistStep extends AbstractStepImpl {
 
-    private final String regex;
-    private final String testTargetRegex;
+    /**
+     * This regular expression is used to get the matched group from the changed file.
+     * Default is to get the file name excluding 'Test'.
+     */
+    private String regex = "([^/]*?)(Test)?\\..*$";
+
+    /**
+     * This regular expression is used to transform the matched group into output list.
+     * Default is to get the file name added 'Test'.
+     */
+    private String testTargetRegex = "$1Test";
+
     private static final Logger LOGGER = Logger.getLogger(GitHubChangelistStep.class.getName());
 
     @DataBoundConstructor public GitHubChangelistStep(String regex, String testTargetRegex) {
@@ -79,7 +87,7 @@ public class GitHubChangelistStep extends AbstractStepImpl {
         protected List<String> run() throws Exception {
             List<String> changelist =
                 getChangelist(build, listener);
-            return createRegexps(changelist, step.regex, step.testTargetRegex);
+            return RegexUtils.createRegexps(changelist, step.regex, step.testTargetRegex);
         }
 
         private List<String> getChangelist(Run<?, ?> build, TaskListener listener)
@@ -102,23 +110,6 @@ public class GitHubChangelistStep extends AbstractStepImpl {
             }
 
             return changelist;
-        }
-        
-        private List<String> createRegexps(List<String> changelist, String regex, String testTargetRegex) {
-            Pattern pattern = Pattern.compile(regex);
-
-            List<String> regexps = new ArrayList<>();
-            for (String change : changelist) {
-                Matcher matcher = pattern.matcher(change);
-
-                if (matcher.find() && matcher.groupCount() >= 1) {
-                    for (int i = 1; i <= matcher.groupCount(); i++) {
-                        regexps.add(testTargetRegex.replace("$" + i, matcher.group(i)));
-                    }
-                }
-            }
-
-            return regexps;
         }
 
         private List<String> getPullRequestChangelist(BranchJobProperty branchJobProperty)
