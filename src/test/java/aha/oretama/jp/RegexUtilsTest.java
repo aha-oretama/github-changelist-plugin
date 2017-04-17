@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import static org.junit.Assert.*;
 /**
- * @author sekineyasufumi on 2017/04/17.
+ * @author aha-oretama.
  */
 public class RegexUtilsTest {
 

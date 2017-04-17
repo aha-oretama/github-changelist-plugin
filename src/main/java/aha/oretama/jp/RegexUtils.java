@@ -6,7 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * @author sekineyasufumi on 2017/04/17.
+ * @author aha-oretama.
  */
 public class RegexUtils {
 
