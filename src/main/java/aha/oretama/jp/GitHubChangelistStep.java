@@ -21,7 +21,7 @@ import org.jenkinsci.plugins.workflow.steps.AbstractStepDescriptorImpl;
 import org.jenkinsci.plugins.workflow.steps.AbstractStepImpl;
 import org.jenkinsci.plugins.workflow.steps.AbstractSynchronousStepExecution;
 import org.jenkinsci.plugins.workflow.steps.StepContextParameter;
-import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -50,8 +50,15 @@ public class GitHubChangelistStep extends AbstractStepImpl {
 
     private static final Logger LOGGER = Logger.getLogger(GitHubChangelistStep.class.getName());
 
-    @DataBoundConstructor public GitHubChangelistStep(String regex, String testTargetRegex) {
+    public GitHubChangelistStep() {}
+
+    @DataBoundSetter
+    public void setRegex(String regex) {
         this.regex = regex;
+    }
+
+    @DataBoundSetter
+    public void setTestTargetRegex(String testTargetRegex) {
         this.testTargetRegex = testTargetRegex;
     }
 
@@ -66,7 +73,7 @@ public class GitHubChangelistStep extends AbstractStepImpl {
         }
 
         @Override public String getDisplayName() {
-            return "return GitHubWrapper changelist.";
+            return "Get changelist.";
         }
     }
 
