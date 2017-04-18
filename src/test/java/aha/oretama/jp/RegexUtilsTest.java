@@ -49,4 +49,16 @@ public class RegexUtilsTest {
         assertEquals("noExtension",resultList.get(3));
     }
 
+    @Test
+    public void createRegexps_multigroups() throws Exception {
+        testTargetRegex = "$1Test$3";
+
+        List resultList = RegexUtils.createRegexps(changelist, regex, testTargetRegex);
+
+        assertEquals("utilTest.java",resultList.get(0));
+        assertEquals("groovyUtilTest.groovy",resultList.get(1));
+        assertEquals("testUtilTest.java",resultList.get(2));
+        assertEquals("noExtensionTest",resultList.get(3));
+    }
+
 }

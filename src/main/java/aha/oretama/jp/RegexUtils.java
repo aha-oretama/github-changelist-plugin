@@ -1,5 +1,7 @@
 package aha.oretama.jp;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -18,10 +20,16 @@ public class RegexUtils {
             Matcher matcher = pattern.matcher(change);
 
             if (matcher.find() && matcher.groupCount() >= 1) {
+                boolean replaced = false;
+                String tmp = testTargetRegex;
                 for (int i = 1; i <= matcher.groupCount(); i++) {
-                    if (matcher.group(i) != null && testTargetRegex.contains("$" + i)) {
-                        regexps.add(testTargetRegex.replace("$" + i, matcher.group(i)));
+                    if (tmp.contains("$" + i)) {
+                        replaced = true;
+                        tmp = tmp.replace("$" + i, StringUtils.defaultString(matcher.group(i)));
                     }
+                }
+                if (replaced) {
+                    regexps.add(tmp);
                 }
             }
         }
