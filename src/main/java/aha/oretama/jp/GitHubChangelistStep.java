@@ -41,7 +41,7 @@ public class GitHubChangelistStep extends AbstractStepImpl {
      * This regular expression is used to get the matched group from the changed file.
      * Default is to get the file name excluding 'Test'.
      */
-    private String regex = "([^/]*?)(Test)?\\..*$";
+    private String regex = "([^/]*?)(Test)?(\\..*)?$";
 
     /**
      * This regular expression is used to transform the matched group into output list.

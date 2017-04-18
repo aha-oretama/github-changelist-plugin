@@ -19,7 +19,7 @@ public class RegexUtils {
 
             if (matcher.find() && matcher.groupCount() >= 1) {
                 for (int i = 1; i <= matcher.groupCount(); i++) {
-                    if(matcher.group(i) != null) {
+                    if (matcher.group(i) != null && testTargetRegex.contains("$" + i)) {
                         regexps.add(testTargetRegex.replace("$" + i, matcher.group(i)));
                     }
                 }
